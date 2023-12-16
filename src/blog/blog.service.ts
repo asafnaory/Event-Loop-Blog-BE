@@ -24,11 +24,27 @@ export class BlogService {
     id: string,
     updateBlogDto: CreateOrUpdateBlogSchema,
   ): Promise<Blog> {
+    const blog = await this.findOne(id);
+    if (blog) {
+      try {
+        return await this.prisma.blog.update({
+          where: { id },
+          data: {
+            likes: blog.likes + (updateBlogDto.likes || 0),
+            comments: blog.comments.concat(updateBlogDto.comments || []),
+          },
+        });
+      } catch (err: unknown) {
+        handleErrors(err);
+      }
+    }
     try {
-      return await this.prisma.blog.upsert({
-        where: { id },
-        create: { ...updateBlogDto, id },
-        update: { ...updateBlogDto },
+      return await this.prisma.blog.create({
+        data: {
+          id,
+          likes: updateBlogDto.likes || 0,
+          comments: updateBlogDto.comments ? [updateBlogDto.comments] : [],
+        },
       });
     } catch (err: unknown) {
       handleErrors(err);
