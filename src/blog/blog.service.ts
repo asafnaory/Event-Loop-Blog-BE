@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { handleErrors } from 'src/helpers/helpers';
 import { CreateOrUpdateBlogSchema } from './dto/blog-schema';
@@ -13,7 +13,7 @@ export class BlogService {
       const blogData = await this.prisma.blog.findUnique({
         where: { id },
       });
-      if (!blogData) throw new NotFoundException('Blog not found');
+      if (!blogData) return null;
       return blogData;
     } catch (err: unknown) {
       handleErrors(err);
@@ -25,8 +25,10 @@ export class BlogService {
     updateBlogDto: CreateOrUpdateBlogSchema,
   ): Promise<Blog> {
     const blog = await this.findOne(id);
-    if (blog) {
-      try {
+    console.log('blog', blog);
+    try {
+      console.log('blog was found - updateBlogDto', updateBlogDto);
+      if (blog) {
         return await this.prisma.blog.update({
           where: { id },
           data: {
@@ -34,18 +36,16 @@ export class BlogService {
             comments: blog.comments.concat(updateBlogDto.comments || []),
           },
         });
-      } catch (err: unknown) {
-        handleErrors(err);
+      } else {
+        console.log('blog was not found - updateBlogDto', updateBlogDto);
+        return await this.prisma.blog.create({
+          data: {
+            id,
+            likes: updateBlogDto.likes || 0,
+            comments: updateBlogDto.comments ? [updateBlogDto.comments] : [],
+          },
+        });
       }
-    }
-    try {
-      return await this.prisma.blog.create({
-        data: {
-          id,
-          likes: updateBlogDto.likes || 0,
-          comments: updateBlogDto.comments ? [updateBlogDto.comments] : [],
-        },
-      });
     } catch (err: unknown) {
       handleErrors(err);
     }
