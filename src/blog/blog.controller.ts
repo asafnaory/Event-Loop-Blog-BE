@@ -18,6 +18,7 @@ import { Blog } from '@prisma/client';
 @Controller('blogs')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
+
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Blog | null> {
     return this.blogService.findOne(id);

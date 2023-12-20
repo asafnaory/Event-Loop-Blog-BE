@@ -15,7 +15,15 @@ model Blog {
   id        String   @id
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  comments  String[]
+  comments  Comment[]
   likes     Int      @default(0)
+}
+
+model Comment {
+  id            String      @id @default(uuid())
+  comment       String
+  commenterName String
+  blog          Blog     @relation(fields: [blogId], references: [id])
+  blogId        String   // Update the type to match the referenced field
 }
 

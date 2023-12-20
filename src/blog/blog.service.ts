@@ -12,6 +12,7 @@ export class BlogService {
     try {
       const blogData = await this.prisma.blog.findUnique({
         where: { id },
+        include: { comments: true },
       });
       if (!blogData) return null;
       return blogData;
@@ -33,7 +34,9 @@ export class BlogService {
           where: { id },
           data: {
             likes: blog.likes + (updateBlogDto.likes || 0),
-            comments: blog.comments.concat(updateBlogDto.comments || []),
+            comments: {
+              create: updateBlogDto.comments || [],
+            },
           },
         });
       } else {
@@ -42,7 +45,9 @@ export class BlogService {
           data: {
             id,
             likes: updateBlogDto.likes || 0,
-            comments: updateBlogDto.comments ? [updateBlogDto.comments] : [],
+            comments: {
+              create: updateBlogDto.comments || [],
+            },
           },
         });
       }
