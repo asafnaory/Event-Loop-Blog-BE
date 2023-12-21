@@ -33,7 +33,7 @@ export class BlogService {
         return await this.prisma.blog.update({
           where: { id },
           data: {
-            likes: blog.likes + (updateBlogDto.likes || 0),
+            likes: updateBlogDto.likes,
             comments: {
               create: updateBlogDto.comments || [],
             },
