@@ -28,8 +28,8 @@ export class BlogService {
     const blog = await this.findOne(id);
     console.log('blog', blog);
     try {
-      console.log('blog was found - updateBlogDto', updateBlogDto);
       if (blog) {
+        console.log('blog was found - updateBlogDto', updateBlogDto);
         return await this.prisma.blog.update({
           where: { id },
           data: {
